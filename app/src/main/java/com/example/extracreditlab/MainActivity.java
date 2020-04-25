@@ -1,5 +1,6 @@
 package com.example.extracreditlab;
 
+
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -8,18 +9,20 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.text.TextUtils;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.ListIterator;
-import java.util.Random;
 
 import android.widget.*;
 
 public class MainActivity extends AppCompatActivity {
+
+    private String word, shuffledword, correctletters;
+    private int guessesWrong, currentletter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,53 +39,70 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
-    }
 
-    ArrayList<String> words = new ArrayList<>(Arrays.asList("APPLE", "BANANA", "CHERRY"));
+        // Initialize Variables
 
-    //get random word from arraylist
+        guessesWrong = currentletter = 0;
+        correctletters = "";
 
+        // Choose and Shuffle Secret Word
 
-        int randomW = (int)(Math.random() * words.size());
-        String word = words.get(randomW);
+        ArrayList<String> words = new ArrayList<>(Arrays.asList("APPLE", "BANANA", "CHERRY"));
 
+        int randomW = (int) (Math.random() * words.size());
+        word = words.get(randomW);
 
-    //split the word in individual letters
-    ArrayList<String> wordlist = new ArrayList(Arrays.asList(word.split("")));
-    Collections.shuffle(wordlist);
-    String shuffledword = String.join(", ", wordlist);
-
+        ArrayList<String> wordlist = new ArrayList(Arrays.asList(word.split("")));
+        Collections.shuffle(wordlist);
+        shuffledword = TextUtils.join("", wordlist);
 
         TextView s = (TextView) findViewById(R.id.scrambled);
         s.setText(shuffledword);
 
-
-    int guessesWrong = 0;
-
-    EditText userGuess = findViewById(R.id.guessLetter);
-    String guess = userGuess.getText().toString();
-
-    ListIterator<String> LI = wordlist.listIterator();
-    String nxt = LI.next();
-
-
-    if (guess.equals(nxt)) {
-        guessesWrong ++;
-        TextView s = (TextView) findViewById(R.id.guessesWrong);
-        s.setText(guessesWrong);
-    } else if {
-        TextView s = (TextView) findViewById(R.id.guessesCorrect);
-        s.setText(guess);
     }
 
-    int length = word.length();
-    //after too many guesses, correct word is displayed for user
-        if (guessesWrong.equals(length)) {
-        TextView w = (TextView) findViewById(R.id.guessesCorrect);
-        w.setText(word);
+    public void onClick(View v) {
+
+        // Get / uppercase player's guess
+
+        EditText userGuess = findViewById(R.id.guessLetter);
+        char guess = (userGuess.getText().toString()).toUpperCase().charAt(0);
+
+        // Guess correct?
+
+        if (guess == word.charAt(currentletter)) {
+            correctletters += guess;
+            TextView s = (TextView) findViewById(R.id.guessesCorrect);
+            s.setText(correctletters);
+            currentletter++;
+            if (correctletters.equals(word)) {
+                TextView w = (TextView) findViewById(R.id.win);
+                w.setText("You won the game in " + currentletter + " guesses");
+            }
+        }
+
+        // Guess incorrect
+
+        else {
+            guessesWrong++;
+            TextView s = (TextView) findViewById(R.id.guessesWrong);
+            s.setText(String.valueOf(guessesWrong));
+        }
+
+        // Clear previous input
+
+        userGuess.setText("");
+
+        int length = word.length();
+
+        //after too many guesses, correct word is displayed for user
+
+        if (guessesWrong == length) {
+            TextView w = (TextView) findViewById(R.id.guessesCorrect);
+            w.setText(word);
+        }
+
     }
-
-
 
 
 
